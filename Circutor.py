@@ -19,12 +19,14 @@ client = ModbusSerialClient(
 reg_add = [62, 64, 66, 2, 18, 34, 48, 54, 222]
 unit_id = 5
 
+
 for x in reg_add:
     if client.connect():
         try:
             register_address = x
+            client.device_id = unit_id
             response = client.read_input_registers(
-                address=register_address, count=2, slave=unit_id)
+                address=register_address, count=2)
             if not response.isError():
                 reg_value = client.convert_from_registers(
                     response.registers, data_type=client.DATATYPE.INT32)
