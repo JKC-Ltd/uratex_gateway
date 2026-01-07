@@ -78,7 +78,7 @@ for meter_result in meter_results:
                 #     response = client.read_holding_registers(address=int(register_address), count=2, slave=slave_address) #Schneider
                 # else:
                 #     response = client.read_input_registers(address=int(register_address), count=2, slave=slave_address) #Eastron & Circutor
-
+                print(slave_address)
                 response = client.read_input_registers(address=int(
                     register_address), count=2, slave=slave_address)
 
