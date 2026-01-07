@@ -39,13 +39,14 @@ client = ModbusSerialClient(
 meter_results = [
     {
         'id': 1,
+        'sensor_model_id': 1,
         'slave_address': '5',
         'register_address': [62, 64, 66, 2, 18, 34, 48, 54, 222],
         'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'current_b', 'current_c', 'active_power', 'apparent_power', 'energy']}]
 # [
-#     {'id': 1, 'slave_address': '5', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']},
-#     {'id': 2, 'slave_address': '6', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']},
-#     {'id': 3, 'slave_address': '7', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']}
+#     {'id': 1, 'sensor_model_id': 1, 'slave_address': '5', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']},
+#     {'id': 2, 'sensor_model_id': 1, 'slave_address': '6', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']},
+#     {'id': 3, 'sensor_model_id': 1, 'slave_address': '7', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']}
 # ]
 # print(meter_results)
 # sys.exit()
