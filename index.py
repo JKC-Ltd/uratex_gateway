@@ -85,17 +85,17 @@ for meter_result in meter_results:
                 if not response.isError():
                     # sensor_value     = "%.2f"%sample_data[i]
                     # meter_value_temp = meter_value_temp + (sensor_value,)
-                    sensor_value_temp = float("%.2f" % client.convert_from_registers(
-                        response.registers, data_type=client.DATATYPE.FLOAT32))
-
+                    # sensor_value_temp = float("%.2f" % client.convert_from_registers(
+                    #     response.registers, data_type=client.DATATYPE.FLOAT32))
+                    sensor_value_temp = client.convert_from_registers(
+                        response.registers, data_type=client.DATATYPE.INT32)
+                    print(sensor_value_temp)
                     if register_address in divided_by_tens:
-                        print("TEN")
                         sensor_value = float(sensor_value_temp/10)
                     elif register_address in divided_by_thousands:
-                        print("THOUSANDS")
+
                         sensor_value = float(sensor_value_temp/1000)
                     else:
-                        print("ZERO")
                         sensor_value = float(sensor_value_temp)
 
                     meter_value_temp = meter_value_temp + (sensor_value,)
