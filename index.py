@@ -120,8 +120,8 @@ for meter_result in meter_results:
                    }
     sample_result.append(result_data)
 
-    # insert_algo.insert_sensor_logs(
-    #     meter_id, slave_address, column_parameter, meter_value)
+    insert_algo.insert_sensor_logs(
+        meter_id, slave_address, column_parameter, meter_value)
 
 
-print(sample_result)
+# print(sample_result)
