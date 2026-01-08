@@ -79,7 +79,7 @@ for meter_result in meter_results:
                 # else:
                 #     response = client.read_input_registers(address=int(register_address), count=2, slave=slave_address) #Eastron & Circutor
                 response = client.read_input_registers(address=int(
-                    register_address), count=2, device_id=slave_address)
+                    register_address), count=2, device_id=slave_address)  # Circutor
 
                 # response = client.read_input_registers(address=0, count=2, slave=6)
                 if not response.isError():
@@ -87,7 +87,8 @@ for meter_result in meter_results:
                     # meter_value_temp = meter_value_temp + (sensor_value,)
                     sensor_value_temp = float("%.2f" % client.convert_from_registers(
                         response.registers, data_type=client.DATATYPE.FLOAT32))
-
+                    print(register_address)
+                    print(divided_by_tens)
                     if register_address in divided_by_tens:
                         sensor_value = float(sensor_value_temp/10)
                     elif register_address in divided_by_thousands:
