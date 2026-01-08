@@ -24,9 +24,8 @@ for x in reg_add:
     if client.connect():
         try:
             register_address = x
-            client.device_id = unit_id
             response = client.read_input_registers(
-                address=register_address, count=2)
+                address=register_address, count=2, device_id=unit_id)
             if not response.isError():
                 reg_value = client.convert_from_registers(
                     response.registers, data_type=client.DATATYPE.INT32)
