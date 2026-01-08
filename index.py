@@ -34,15 +34,15 @@ client = ModbusSerialClient(
 # sys.exit()
 
 # GETTING METTERS DATA
-# meter_results = gateway_config.get_metter_ids()
+meter_results = gateway_config.get_metter_ids()
 
-meter_results = [
-    {
-        'id': 1,
-        'sensor_model_id': 1,
-        'slave_address': 5,
-        'register_address': [62, 64, 66, 2, 18, 34, 48, 54, 222],
-        'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'current_b', 'current_c', 'active_power', 'apparent_power', 'energy']}]
+# meter_results = [
+#     {
+#         'id': 1,
+#         'sensor_model_id': 1,
+#         'slave_address': 5,
+#         'register_address': [62, 64, 66, 2, 18, 34, 48, 54, 222],
+#         'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'current_b', 'current_c', 'active_power', 'apparent_power', 'energy']}]
 # [
 #     {'id': 1, 'sensor_model_id': 1, 'slave_address': '5', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']},
 #     {'id': 2, 'sensor_model_id': 1, 'slave_address': '6', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']},
