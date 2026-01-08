@@ -89,7 +89,7 @@ for meter_result in meter_results:
                     #     response.registers, data_type=client.DATATYPE.FLOAT32))
                     sensor_value_temp = client.convert_from_registers(
                         response.registers, data_type=client.DATATYPE.INT32)
-                    print(sensor_value_temp)
+                    # print(sensor_value_temp)
                     if register_address in divided_by_tens:
                         sensor_value = float(sensor_value_temp/10)
                     elif register_address in divided_by_thousands:
