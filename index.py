@@ -24,12 +24,12 @@ client = ModbusSerialClient(
 
 
 # SYNCING DATA FROM CLOUD TO LOCAL
-# if (db_connections.cloud_database()):
-#     db_connections.sync(gateway_id)
+if (db_connections.cloud_database()):
+    db_connections.sync(gateway_id)
 
-# # SYNCING DATA FROM LOCAL TO CLOUD
-# if (db_connections.local_database()):
-#     db_connections.sync(gateway_id, False)
+# SYNCING DATA FROM LOCAL TO CLOUD
+if (db_connections.local_database()):
+    db_connections.sync(gateway_id, False)
 
 # sys.exit()
 
