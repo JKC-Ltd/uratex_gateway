@@ -79,7 +79,7 @@ for meter_result in meter_results:
                 # else:
                 #     response = client.read_input_registers(address=int(register_address), count=2, slave=slave_address) #Eastron & Circutor
                 response = client.read_input_registers(address=int(
-                    register_address), count=2, slave=slave_address)
+                    register_address), count=2, device_id=slave_address)
 
                 # response = client.read_input_registers(address=0, count=2, slave=6)
                 if not response.isError():
