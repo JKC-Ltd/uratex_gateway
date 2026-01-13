@@ -6,8 +6,8 @@ from datetime import datetime
 import sys
 
 # DECLARING ID's
-gateway_id = 15
-gateway_code = "GAT-15"
+gateway_id = 16
+gateway_code = "GAT-16"
 
 
 def get_metter_ids():
