@@ -46,59 +46,62 @@ def local_database():
 
 def sync(gateway_id, fromCloudToLocal=True):
 
-    from_conn = cloud_database() if fromCloudToLocal else local_database()
-    from_query = from_conn.cursor(dictionary=True)
+    if cloud_database():
+        from_conn = cloud_database() if fromCloudToLocal else local_database()
+        from_query = from_conn.cursor(dictionary=True)
 
-    from_sql = f"""SELECT * FROM sensor_offlines WHERE gateway_id = {gateway_id} ORDER BY id"""
-    from_query.execute(from_sql)
+        from_sql = f"""SELECT * FROM sensor_offlines WHERE gateway_id = {gateway_id} ORDER BY id"""
+        from_query.execute(from_sql)
 
-    from_result = from_query.fetchall()
-    # from_query.close()
+        from_result = from_query.fetchall()
+        # from_query.close()
 
-    for row in from_result:
-        row_id = row["id"]
-        sql = row["query"]
-        to_conn = local_database() if fromCloudToLocal else cloud_database()
-        to_query = to_conn.cursor(dictionary=True)
+        for row in from_result:
+            row_id = row["id"]
+            sql = row["query"]
+            to_conn = local_database() if fromCloudToLocal else cloud_database()
+            to_query = to_conn.cursor(dictionary=True)
 
-        try:
-            if to_conn.is_connected():
-                to_query.execute(sql)
-                to_conn.commit()
-                print(
-                    f"Query executed successfully. Rows affected: {to_query.rowcount}")
-
-            else:
-                print("Connection is no longer active, reconnecting...")
-                to_conn = local_database() if fromCloudToLocal else cloud_database()
-                to_query = to_conn.cursor(dictionary=True)
-                to_query.execute(sql)
-
-            if (to_query.rowcount > 0):
-                delete_sql = f"""DELETE FROM `sensor_offlines` WHERE id = {row_id}"""
-
-                if from_conn.is_connected():
-                    from_query.execute(delete_sql)
+            try:
+                if to_conn.is_connected():
+                    to_query.execute(sql)
+                    to_conn.commit()
+                    print(
+                        f"Query executed successfully. Rows affected: {to_query.rowcount}")
 
                 else:
-                    from_conn = cloud_database() if fromCloudToLocal else local_database()
-                    from_query = from_conn.cursor(dictionary=True)
-                    from_query.execute(delete_sql)
+                    print("Connection is no longer active, reconnecting...")
+                    to_conn = local_database() if fromCloudToLocal else cloud_database()
+                    to_query = to_conn.cursor(dictionary=True)
+                    to_query.execute(sql)
 
-                from_conn.commit()
-                print(f"Successfully Sync...")
-            else:
-                print(sql)
+                if (to_query.rowcount > 0):
+                    delete_sql = f"""DELETE FROM `sensor_offlines` WHERE id = {row_id}"""
 
-        except mysql.connector.Error as error_message:
-            print(f"Query INVALID. Rows affected:")
-            print(f"Error: {error_message}")
-            to_conn.rollback()
-        finally:
-            from_query.close()
-            from_conn.close()
-            to_query.close()
-            to_conn.close()
+                    if from_conn.is_connected():
+                        from_query.execute(delete_sql)
+
+                    else:
+                        from_conn = cloud_database() if fromCloudToLocal else local_database()
+                        from_query = from_conn.cursor(dictionary=True)
+                        from_query.execute(delete_sql)
+
+                    from_conn.commit()
+                    print(f"Successfully Sync...")
+                else:
+                    print(sql)
+
+            except mysql.connector.Error as error_message:
+                print(f"Query INVALID. Rows affected:")
+                print(f"Error: {error_message}")
+                to_conn.rollback()
+            finally:
+                from_query.close()
+                from_conn.close()
+                to_query.close()
+                to_conn.close()
+    else:
+        print("The device is currently disconnected from the cloud.")
 
 
 # insert into `sensor_registers`
