@@ -1,4 +1,4 @@
-# this code reads the following parameters from Circutor CVM-C10 energy meter:
+# this code reads the following parameters from Circutor CVM-C10 energy meter: charlito
 # Voltage AB, BC, CA		[62, 64, 66]
 # Current A, B, C			[2, 18, 34]
 # Active Power			[48]
