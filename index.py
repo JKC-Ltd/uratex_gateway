@@ -107,6 +107,7 @@ try:
                         client.close()
                 else:
                     print("Unable to connect to the Modbus Server.")
+                    continue
 
                 meter_value_temp = tuple(map(float, meter_value_temp))
                 meter_value_temp = meter_value_temp + (date_now,)
