@@ -56,6 +56,7 @@ try:
 
             # Fetch meter configuration (uses the already-open local connection)
             meter_results = gateway_config.get_metter_ids(local_conn)
+            print(meter_result)
             # meter_results = [
             #     {
             #         'id': 1,
@@ -126,7 +127,7 @@ try:
             # Do not exit — log and continue to next cycle
 
         print(f"[{date_now}] Cycle complete. Sleeping...")
-        time.sleep(10)
+        time.sleep(60)
 
 finally:
     # Reached only on KeyboardInterrupt or fatal crash
