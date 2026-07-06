@@ -3,10 +3,10 @@ Description=ENMMS Gateway Service
 After=network.target
 
 [Service]
-ExecStart=/bin/bash -c 'source /home/ryan/jarvis/bin/activate && python3 /home/ryan/code/enmms_gateway/index.py'
-WorkingDirectory=/home/ryan/code/enmms_gateway
+ExecStart=/bin/bash -c 'source /home/ryan/jarvis/bin/activate && python3 /home/ryan/code/uratex_gateway/index.py'
+WorkingDirectory=/home/ryan/code/uratex_gateway
 Restart=always
-RestartSec=10
+RestartSec=60
 StandardOutput=journal
 StandardError=journal
 

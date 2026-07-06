@@ -8,9 +8,9 @@ import sys
 datetime_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 CLOUD_HOST = "srv2208.hstgr.io"
-CLOUD_USER = "u565803524_dev_uratex"
-CLOUD_PASSWORD = "m1&XJPSH"
-CLOUD_DATABASE = "u565803524_dev_uratex"
+CLOUD_USER = "u565803524_uratex"
+CLOUD_PASSWORD = "5IwJ+Pc~l?N"
+CLOUD_DATABASE = "u565803524_uratex"
 
 LOCAL_HOST = "localhost"
 LOCAL_USER = "root"
