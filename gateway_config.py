@@ -6,13 +6,8 @@ from datetime import datetime
 import sys
 
 # DECLARING ID's
-<<<<<<< HEAD
 gateway_id = 13
 gateway_code = "GAT-13"
-=======
-gateway_id = 0
-gateway_code = "GAT-00"
->>>>>>> main
 
 
 def get_metter_ids(local_conn):
