@@ -6,13 +6,12 @@ import time
 from datetime import datetime
 import sys
 
-date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # DECLARING ID's
 gateway_id = gateway_config.gateway_id
 gateway_code = gateway_config.gateway_code
 
-# DECLARING MOBUSCLIENT
+# DECLARING MODBUS CLIENT
 client = ModbusSerialClient(
     port='/dev/ttyUSB0',
     baudrate=9600,
@@ -23,105 +22,115 @@ client = ModbusSerialClient(
 )
 
 
-# SYNCING DATA FROM CLOUD TO LOCAL
-if (db_connections.cloud_database()):
-    db_connections.sync(gateway_id)
+# Open connections once at startup — reused for the entire lifetime of the process
+cloud_conn = db_connections.cloud_database()
+if not cloud_conn:
+    print("Cloud database unreachable at startup. Running in offline mode.")
 
-# SYNCING DATA FROM LOCAL TO CLOUD
-if (db_connections.local_database()):
-    db_connections.sync(gateway_id, False)
+local_conn = db_connections.local_database()
+if not local_conn:
+    print("Local database unreachable. Cannot continue.")
+    sys.exit(1)
 
-# sys.exit()
+try:
+    while True:
+        date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-# GETTING METTERS DATA
-meter_results = gateway_config.get_metter_ids()
+        # Retry cloud connection if it was never established or dropped
+        if not cloud_conn:
+            print(f"[{date_now}] Attempting to reconnect to cloud database...")
+            cloud_conn = db_connections.cloud_database()
+            if cloud_conn:
+                print(f"[{date_now}] Cloud connection re-established.")
+            else:
+                print(
+                    f"[{date_now}] Cloud still unreachable. Running in offline mode.")
 
-# meter_results = [
-#     {
-#         'id': 1,
-#         'sensor_model_id': 1,
-#         'slave_address': 5,
-#         'register_address': [62, 64, 66, 2, 18, 34, 48, 54, 222],
-#         'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'current_b', 'current_c', 'active_power', 'apparent_power', 'energy']}]
-# [
-#     {'id': 1, 'sensor_model_id': 1, 'slave_address': '5', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']},
-#     {'id': 2, 'sensor_model_id': 1, 'slave_address': '6', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']},
-#     {'id': 3, 'sensor_model_id': 1, 'slave_address': '7', 'register_address': [0, 6, 12, 18, 342], 'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'real_power']}
-# ]
-# print(meter_results)
-# sys.exit()
-# ALGORITHM WORKS BELOW
+        try:
+            # Sync offline queue before polling meters
+            # Pass cloud_conn by reference — sync() handles None gracefully
+            db_connections.sync(gateway_id, from_conn=cloud_conn,
+                                to_conn=local_conn, fromCloudToLocal=True)
+            db_connections.sync(gateway_id, from_conn=local_conn,
+                                to_conn=cloud_conn, fromCloudToLocal=False)
 
-# SAMPLE VALUE OF METERS
-sample_data = [12, 34, 56, 78, 910]
-sample_result = []
+            # Fetch meter configuration (uses the already-open local connection)
+            meter_results = gateway_config.get_metter_ids(local_conn)
+            # meter_results = [
+            #     {
+            #         'id': 1,
+            #         'sensor_model_id': 2,
+            #         'slave_address': 5,
+            #         'register_address': [200, 202, 204, 6, 8, 10, 52, 56, 342],
+            #         'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'current_b', 'current_c', 'real_power', 'apparent_power', 'energy']}]
 
-for meter_result in meter_results:
-    model_id = meter_result['sensor_model_id']
-    meter_id = meter_result['id']
-    slave_address = int(meter_result['slave_address'])
-    columns = ["gateway_id", "sensor_id"] + \
-        meter_result['parameter'] + ['datetime_created']
-    register_addresses = meter_result['register_address']
-    column_parameter = ', '.join(columns)
-    meter_value_temp = ()
-    divided_by_tens = [62, 64, 66]
-    divided_by_thousands = [2, 18, 34, 48, 54, 222]
+            for meter_result in meter_results:
+                model_id = meter_result['sensor_model_id']
+                meter_id = meter_result['id']
+                slave_address = int(meter_result['slave_address'])
+                columns = ["gateway_id", "sensor_id"] + \
+                    meter_result['parameter'] + ['datetime_created']
+                register_addresses = meter_result['register_address']
+                column_parameter = ', '.join(columns)
+                meter_value_temp = ()
 
-    i = 0  # <- This is only for the Index of register_addresses
-    for register_address in register_addresses:
+                # Connect once per meter (not once per register)
+                if client.connect():
+                    try:
+                        for register_address in register_addresses:
 
-        if client.connect():
-            try:
+                            if model_id == 1:
+                                # Schneider
+                                response = client.read_holding_registers(
+                                    address=int(register_address),
+                                    count=2,
+                                    device_id=slave_address
+                                )
+                            else:
+                                # Eastron
+                                response = client.read_input_registers(
+                                    address=int(register_address),
+                                    count=2,
+                                    device_id=slave_address
+                                )
 
-                # if model_id == 1:
-                #     response = client.read_holding_registers(address=int(register_address), count=2, slave=slave_address) #Schneider
-                # else:
-                #     response = client.read_input_registers(address=int(register_address), count=2, slave=slave_address) #Eastron & Circutor
-                response = client.read_input_registers(address=int(
-                    register_address), count=2, device_id=slave_address)  # Circutor
-
-                # response = client.read_input_registers(address=0, count=2, slave=6)
-                if not response.isError():
-                    # sensor_value     = "%.2f"%sample_data[i]
-                    # meter_value_temp = meter_value_temp + (sensor_value,)
-                    # sensor_value_temp = float("%.2f" % client.convert_from_registers(
-                    #     response.registers, data_type=client.DATATYPE.FLOAT32))
-                    sensor_value_temp = client.convert_from_registers(
-                        response.registers, data_type=client.DATATYPE.INT32)
-                    # print(sensor_value_temp)
-                    if register_address in divided_by_tens:
-                        sensor_value = float(sensor_value_temp/10)
-                    elif register_address in divided_by_thousands:
-
-                        sensor_value = float(sensor_value_temp/1000)
-                    else:
-                        sensor_value = float(sensor_value_temp)
-
-                    meter_value_temp = meter_value_temp + (sensor_value,)
+                            if not response.isError():
+                                sensor_value = float("%.2f" % client.convert_from_registers(
+                                    response.registers, data_type=client.DATATYPE.FLOAT32
+                                ))
+                                meter_value_temp = meter_value_temp + \
+                                    (sensor_value,)
+                            else:
+                                print("Error Reading Register")
+                    finally:
+                        client.close()
                 else:
-                    print("Error Reading Register")
-            finally:
-                client.close()
-        else:
-            print("Unable to connect to the Modbus Server.")
+                    print("Unable to connect to the Modbus Server.")
 
-        i += 1
+                meter_value_temp = tuple(map(float, meter_value_temp))
+                meter_value_temp = meter_value_temp + (date_now,)
+                meter_value = (gateway_id, meter_id) + meter_value_temp
 
-    # Convert values to float if they're strings
-    meter_value_temp = tuple(map(float, meter_value_temp))
-    meter_value_temp = meter_value_temp + (date_now,)
-    meter_value = (gateway_id, meter_id) + meter_value_temp
+                # insert_sensor_logs returns True if cloud insert succeeded, False if it fell back to offline
+                cloud_ok = insert_algo.insert_sensor_logs(
+                    meter_id, slave_address, column_parameter, meter_value,
+                    cloud_conn=cloud_conn, local_conn=local_conn
+                )
 
-    result_data = {'meter_id': meter_id,
-                   'slave_address': slave_address,
-                   'column_parameter': column_parameter,
-                   'meter_value': meter_value
-                   }
-    sample_result.append(result_data)
+                # If cloud insert failed, mark cloud_conn as None so next cycle retries
+                if not cloud_ok:
+                    cloud_conn = None
 
-    insert_algo.insert_sensor_logs(
-        meter_id, slave_address, column_parameter, meter_value)
+        except Exception as e:
+            print(f"[{date_now}] Cycle error: {e}")
+            # Do not exit — log and continue to next cycle
 
+        print(f"[{date_now}] Cycle complete. Sleeping...")
+        time.sleep(10)
 
-# print(sample_result)
+finally:
+    # Reached only on KeyboardInterrupt or fatal crash
+    print("Gateway shutting down. Closing connections...")
+    if cloud_conn:
+        cloud_conn.close()
+    local_conn.close()
