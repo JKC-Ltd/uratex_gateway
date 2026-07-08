@@ -56,7 +56,7 @@ try:
 
             # Fetch meter configuration (uses the already-open local connection)
             meter_results = gateway_config.get_metter_ids(local_conn)
-            print(meter_results)
+            # print(meter_results)
             # meter_results = [
             #     {
             #         'id': 1,
