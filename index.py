@@ -114,11 +114,6 @@ try:
 
                                 meter_value_temp = meter_value_temp + \
                                     (sensor_value,)
-
-                                print("Sensor Value:", sensor_value)
-
-                                sys.exit(1)
-
                             else:
                                 print("Error Reading Register")
                     finally:
