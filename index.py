@@ -32,8 +32,32 @@ if not local_conn:
     print("Local database unreachable. Cannot continue.")
     sys.exit(1)
 
+POLL_INTERVAL_SECONDS = 5 * 60
+
+
+def seconds_until_next_boundary(now, interval_seconds=POLL_INTERVAL_SECONDS):
+    """
+    Seconds to sleep so the next wakeup lands exactly on the next
+    multiple of `interval_seconds` from the top of the hour
+    (e.g. :00, :05, :10 ... for a 5-minute interval), and is always
+    strictly in the future (never 0) even if `now` is already on
+    a boundary.
+    """
+    seconds_since_hour = now.minute * 60 + now.second + now.microsecond / 1_000_000
+    seconds_to_next = interval_seconds - (seconds_since_hour % interval_seconds)
+    if seconds_to_next <= 0:
+        seconds_to_next += interval_seconds
+    return seconds_to_next
+
+
 try:
     while True:
+        # Wait until the next 5-minute clock boundary (:00, :05, :10, ...)
+        # Computed fresh each cycle so processing time never causes drift.
+        now = datetime.now()
+        seconds_to_wait = seconds_until_next_boundary(now)
+        time.sleep(seconds_to_wait)
+
         date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Retry cloud connection if it was never established or dropped
@@ -80,25 +104,38 @@ try:
                     try:
                         for register_address in register_addresses:
 
-                            if model_id == 1:
-                                # Schneider
-                                response = client.read_holding_registers(
-                                    address=int(register_address),
-                                    count=2,
-                                    device_id=slave_address
-                                )
-                            else:
-                                # Eastron
-                                response = client.read_input_registers(
-                                    address=int(register_address),
-                                    count=2,
-                                    device_id=slave_address
-                                )
+                            # if model_id > 1:
+                            #     # Schneider
+                            #     response = client.read_holding_registers(
+                            #         address=int(register_address),
+                            #         count=2,
+                            #         device_id=slave_address
+                            #     )
+                            # else:
+
+                            # Eastron
+                            response = client.read_input_registers(
+                                address=int(register_address),
+                                count=2,
+                                device_id=int(slave_address)
+                            )
 
                             if not response.isError():
-                                sensor_value = float("%.2f" % client.convert_from_registers(
-                                    response.registers, data_type=client.DATATYPE.FLOAT32
-                                ))
+
+                                # sensor_value = float("%.2f" % client.convert_from_registers(
+                                #     response.registers, data_type=client.DATATYPE.FLOAT32
+                                # ))
+
+                                sensor_value = client.convert_from_registers(
+                                    response.registers,
+                                    data_type=client.DATATYPE.INT32
+                                )
+
+                                if register_address in (62, 63, 66):
+                                    sensor_value = sensor_value / 10
+                                else:
+                                    sensor_value = sensor_value / 1000
+
                                 meter_value_temp = meter_value_temp + \
                                     (sensor_value,)
                             else:
@@ -114,6 +151,7 @@ try:
                 meter_value = (gateway_id, meter_id) + meter_value_temp
 
                 # insert_sensor_logs returns True if cloud insert succeeded, False if it fell back to offline
+
                 cloud_ok = insert_algo.insert_sensor_logs(
                     meter_id, slave_address, column_parameter, meter_value,
                     cloud_conn=cloud_conn, local_conn=local_conn
@@ -127,8 +165,7 @@ try:
             print(f"[{date_now}] Cycle error: {e}")
             # Do not exit — log and continue to next cycle
 
-        print(f"[{date_now}] Cycle complete. Sleeping...")
-        time.sleep(60)
+        print(f"[{date_now}] Cycle complete. Sleeping until next 5-minute boundary...")
 
 finally:
     # Reached only on KeyboardInterrupt or fatal crash
