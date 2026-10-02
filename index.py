@@ -35,6 +35,7 @@ if not local_conn:
 try:
     while True:
         date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        now = datetime.now()
 
         # Retry cloud connection if it was never established or dropped
         if not cloud_conn:
@@ -127,14 +128,16 @@ try:
                 meter_value = (gateway_id, meter_id) + meter_value_temp
 
                 # insert_sensor_logs returns True if cloud insert succeeded, False if it fell back to offline
-                cloud_ok = insert_algo.insert_sensor_logs(
-                    meter_id, slave_address, column_parameter, meter_value,
-                    cloud_conn=cloud_conn, local_conn=local_conn
-                )
 
-                # If cloud insert failed, mark cloud_conn as None so next cycle retries
-                if not cloud_ok:
-                    cloud_conn = None
+                if now.minute % 5 == 0:
+                    cloud_ok = insert_algo.insert_sensor_logs(
+                        meter_id, slave_address, column_parameter, meter_value,
+                        cloud_conn=cloud_conn, local_conn=local_conn
+                    )
+
+                    # If cloud insert failed, mark cloud_conn as None so next cycle retries
+                    if not cloud_ok:
+                        cloud_conn = None
 
         except Exception as e:
             print(f"[{date_now}] Cycle error: {e}")
