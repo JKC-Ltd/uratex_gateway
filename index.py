@@ -90,7 +90,7 @@ try:
                             # else:
 
                             # Eastron
-                            response = client.read_input_registers(
+                            response = client.read_holding_registers(
                                 address=int(62),
                                 count=2,
                                 device_id=int(2)
