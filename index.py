@@ -96,11 +96,6 @@ try:
                                 device_id=int(slave_address)
                             )
 
-                            print("Response:", response)
-                            print("Registers:", response.registers)
-                            print("Register 1:", response.registers[0])
-                            print("Register 2:", response.registers[1])
-
                             if not response.isError():
 
                                 # sensor_value = float("%.2f" % client.convert_from_registers(
@@ -111,6 +106,11 @@ try:
                                     response.registers,
                                     data_type=client.DATATYPE.INT32
                                 )
+
+                                if register_address in (62, 63, 66):
+                                    sensor_value = sensor_value / 10
+                                else:
+                                    sensor_value = sensor_value / 1000
 
                                 meter_value_temp = meter_value_temp + \
                                     (sensor_value,)
