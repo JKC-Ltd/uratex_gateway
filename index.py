@@ -141,7 +141,7 @@ try:
             # Do not exit — log and continue to next cycle
 
         print(f"[{date_now}] Cycle complete. Sleeping...")
-        time.sleep(60)
+        time.sleep(300)
 
 finally:
     # Reached only on KeyboardInterrupt or fatal crash
