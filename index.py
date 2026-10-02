@@ -64,6 +64,7 @@ try:
             #         'slave_address': 5,
             #         'register_address': [200, 202, 204, 6, 8, 10, 52, 56, 342],
             #         'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'current_b', 'current_c', 'real_power', 'apparent_power', 'energy']}]
+            print("Meter Result")
             print(meter_results)
             sys.exit(1)
 
@@ -98,12 +99,22 @@ try:
                                 device_id=slave_address
                             )
 
+                            print("Register Address")
+                            print(register_address)
+                            print("Slave Address")
+                            print(slave_address)
+
                             if not response.isError():
                                 sensor_value = float("%.2f" % client.convert_from_registers(
                                     response.registers, data_type=client.DATATYPE.FLOAT32
                                 ))
                                 meter_value_temp = meter_value_temp + \
                                     (sensor_value,)
+
+                                print("Sensor Value:")
+                                print(sensor_value)
+                                sys.exit(1)
+
                             else:
                                 print("Error Reading Register")
                     finally:
