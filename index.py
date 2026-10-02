@@ -35,14 +35,14 @@ if not local_conn:
 try:
     while True:
         date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
         now = datetime.now()
 
-        next_run = (
-            now.replace(second=0, microsecond=0)
-            + timedelta(minutes=5 - (now.minute % 5))
+        # Calculate seconds until next 5-minute boundary
+        seconds_to_wait = (
+            (5 - (now.minute % 5)) * 60
+            - now.second
         )
-
-        sleep_seconds = max(0, (next_run - datetime.now()).total_seconds())
 
         # Retry cloud connection if it was never established or dropped
         if not cloud_conn:
@@ -149,7 +149,7 @@ try:
             # Do not exit — log and continue to next cycle
 
         print(f"[{date_now}] Cycle complete. Sleeping...")
-        time.sleep(sleep_seconds)
+        time.sleep(seconds_to_wait)
 
 finally:
     # Reached only on KeyboardInterrupt or fatal crash
