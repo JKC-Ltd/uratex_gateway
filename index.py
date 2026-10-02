@@ -44,7 +44,8 @@ def seconds_until_next_boundary(now, interval_seconds=POLL_INTERVAL_SECONDS):
     a boundary.
     """
     seconds_since_hour = now.minute * 60 + now.second + now.microsecond / 1_000_000
-    seconds_to_next = interval_seconds - (seconds_since_hour % interval_seconds)
+    seconds_to_next = interval_seconds - \
+        (seconds_since_hour % interval_seconds)
     if seconds_to_next <= 0:
         seconds_to_next += interval_seconds
     return seconds_to_next
@@ -131,7 +132,7 @@ try:
                                     data_type=client.DATATYPE.INT32
                                 )
 
-                                if register_address in (62, 63, 66):
+                                if register_address in (62, 64, 66):
                                     sensor_value = sensor_value / 10
                                 else:
                                     sensor_value = sensor_value / 1000
@@ -165,7 +166,8 @@ try:
             print(f"[{date_now}] Cycle error: {e}")
             # Do not exit — log and continue to next cycle
 
-        print(f"[{date_now}] Cycle complete. Sleeping until next 5-minute boundary...")
+        print(
+            f"[{date_now}] Cycle complete. Sleeping until next 5-minute boundary...")
 
 finally:
     # Reached only on KeyboardInterrupt or fatal crash
