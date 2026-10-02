@@ -32,19 +32,33 @@ if not local_conn:
     print("Local database unreachable. Cannot continue.")
     sys.exit(1)
 
+POLL_INTERVAL_SECONDS = 5 * 60
+
+
+def seconds_until_next_boundary(now, interval_seconds=POLL_INTERVAL_SECONDS):
+    """
+    Seconds to sleep so the next wakeup lands exactly on the next
+    multiple of `interval_seconds` from the top of the hour
+    (e.g. :00, :05, :10 ... for a 5-minute interval), and is always
+    strictly in the future (never 0) even if `now` is already on
+    a boundary.
+    """
+    seconds_since_hour = now.minute * 60 + now.second + now.microsecond / 1_000_000
+    seconds_to_next = interval_seconds - (seconds_since_hour % interval_seconds)
+    if seconds_to_next <= 0:
+        seconds_to_next += interval_seconds
+    return seconds_to_next
+
+
 try:
     while True:
-        date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Wait until next 5-minute boundary
+        # Wait until the next 5-minute clock boundary (:00, :05, :10, ...)
+        # Computed fresh each cycle so processing time never causes drift.
         now = datetime.now()
-
-        seconds_to_wait = (
-            (5 - (now.minute % 5)) * 60
-            - now.second
-        )
-
+        seconds_to_wait = seconds_until_next_boundary(now)
         time.sleep(seconds_to_wait)
+
+        date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Retry cloud connection if it was never established or dropped
         if not cloud_conn:
@@ -151,8 +165,7 @@ try:
             print(f"[{date_now}] Cycle error: {e}")
             # Do not exit — log and continue to next cycle
 
-        print(f"[{date_now}] Cycle complete. Sleeping...")
-        time.sleep(60)
+        print(f"[{date_now}] Cycle complete. Sleeping until next 5-minute boundary...")
 
 finally:
     # Reached only on KeyboardInterrupt or fatal crash
