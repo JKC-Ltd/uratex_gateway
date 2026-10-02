@@ -22,7 +22,7 @@ def insert_sensor_logs(meter_id, slave_address, column_parameter="", values="",
         placeholders = ", ".join(["%s"] * len(values))
         sql = f"INSERT INTO sensor_logs ({column_parameter}) VALUES ({placeholders})"
 
-        print(column_parameter)
+        print(sql)
         sys.exit(1)
 
         if cloud_conn:
