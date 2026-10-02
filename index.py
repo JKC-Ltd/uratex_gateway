@@ -103,9 +103,14 @@ try:
 
                             if not response.isError():
 
-                                sensor_value = float("%.2f" % client.convert_from_registers(
-                                    response.registers, data_type=client.DATATYPE.FLOAT32
-                                ))
+                                # sensor_value = float("%.2f" % client.convert_from_registers(
+                                #     response.registers, data_type=client.DATATYPE.FLOAT32
+                                # ))
+
+                                sensor_value = client.convert_from_registers(
+                                    response.registers,
+                                    data_type=client.DATATYPE.FLOAT32
+                                )
 
                                 meter_value_temp = meter_value_temp + \
                                     (sensor_value,)
