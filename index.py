@@ -91,9 +91,9 @@ try:
 
                             # Eastron
                             response = client.read_input_registers(
-                                address=int(62),
+                                address=int(register_address),
                                 count=2,
-                                device_id=int(2)
+                                device_id=int(slave_address)
                             )
 
                             print("Response:", response)
@@ -109,15 +109,14 @@ try:
 
                                 sensor_value = client.convert_from_registers(
                                     response.registers,
-                                    data_type=client.DATATYPE.FLOAT32
+                                    data_type=client.DATATYPE.INT32
                                 )
 
                                 meter_value_temp = meter_value_temp + \
                                     (sensor_value,)
 
-                                print("Sensor Value:")
+                                print("Sensor Value:", sensor_value)
 
-                                print(sensor_value)
                                 sys.exit(1)
 
                             else:
