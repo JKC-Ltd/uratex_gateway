@@ -80,20 +80,21 @@ try:
                     try:
                         for register_address in register_addresses:
 
-                            if model_id == 1:
-                                # Schneider
-                                response = client.read_holding_registers(
-                                    address=int(register_address),
-                                    count=2,
-                                    device_id=slave_address
-                                )
-                            else:
-                                # Eastron
-                                response = client.read_input_registers(
-                                    address=int(register_address),
-                                    count=2,
-                                    device_id=slave_address
-                                )
+                            # if model_id == 1:
+                            #     # Schneider
+                            #     response = client.read_holding_registers(
+                            #         address=int(register_address),
+                            #         count=2,
+                            #         device_id=slave_address
+                            #     )
+                            # else:
+
+                            # Eastron
+                            response = client.read_input_registers(
+                                address=int(register_address),
+                                count=2,
+                                device_id=slave_address
+                            )
 
                             if not response.isError():
                                 sensor_value = float("%.2f" % client.convert_from_registers(
@@ -112,6 +113,9 @@ try:
                 meter_value_temp = tuple(map(float, meter_value_temp))
                 meter_value_temp = meter_value_temp + (date_now,)
                 meter_value = (gateway_id, meter_id) + meter_value_temp
+
+                print(meter_value)
+                sys.exit(1)
 
                 # insert_sensor_logs returns True if cloud insert succeeded, False if it fell back to offline
                 cloud_ok = insert_algo.insert_sensor_logs(
