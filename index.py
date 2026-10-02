@@ -91,7 +91,7 @@ try:
 
                             # Eastron
                             response = client.read_input_registers(
-                                address=int(222),
+                                address=int(62),
                                 count=2,
                                 device_id=int(2)
                             )
