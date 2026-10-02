@@ -64,6 +64,8 @@ try:
             #         'slave_address': 5,
             #         'register_address': [200, 202, 204, 6, 8, 10, 52, 56, 342],
             #         'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'current_b', 'current_c', 'real_power', 'apparent_power', 'energy']}]
+            print(meter_results)
+            sys.exit(1)
 
             for meter_result in meter_results:
                 model_id = meter_result['sensor_model_id']
@@ -113,9 +115,6 @@ try:
                 meter_value_temp = tuple(map(float, meter_value_temp))
                 meter_value_temp = meter_value_temp + (date_now,)
                 meter_value = (gateway_id, meter_id) + meter_value_temp
-
-                print(meter_value)
-                sys.exit(1)
 
                 # insert_sensor_logs returns True if cloud insert succeeded, False if it fell back to offline
                 cloud_ok = insert_algo.insert_sensor_logs(
