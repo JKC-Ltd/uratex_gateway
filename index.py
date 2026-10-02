@@ -66,7 +66,6 @@ try:
             #         'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'current_b', 'current_c', 'real_power', 'apparent_power', 'energy']}]
             print("Meter Result")
             print(meter_results)
-            sys.exit(1)
 
             for meter_result in meter_results:
                 model_id = meter_result['sensor_model_id']
