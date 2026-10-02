@@ -3,7 +3,7 @@ import db_connections
 import gateway_config
 import insert_algo
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys
 
 
@@ -35,6 +35,17 @@ if not local_conn:
 try:
     while True:
         date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        now = datetime.now()
+
+        # Calculate the next 5-minute boundary
+        next_run = now.replace(
+            second=0,
+            microsecond=0
+        ) + timedelta(
+            minutes=5 - (now.minute % 5)
+        )
+
+        sleep_seconds = (next_run - now).total_seconds()
 
         # Retry cloud connection if it was never established or dropped
         if not cloud_conn:
@@ -141,7 +152,7 @@ try:
             # Do not exit — log and continue to next cycle
 
         print(f"[{date_now}] Cycle complete. Sleeping...")
-        time.sleep(300)
+        time.sleep(sleep_seconds)
 
 finally:
     # Reached only on KeyboardInterrupt or fatal crash
