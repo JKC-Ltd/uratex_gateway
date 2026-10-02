@@ -90,11 +90,16 @@ try:
                             # else:
 
                             # Eastron
-                            response = client.read_holding_registers(
+                            response = client.read_input_registers(
                                 address=int(62),
                                 count=2,
                                 device_id=int(2)
                             )
+
+                            print("Response:", response)
+                            print("Registers:", response.registers)
+                            print("Register 1:", response.registers[0])
+                            print("Register 2:", response.registers[1])
 
                             if not response.isError():
 
