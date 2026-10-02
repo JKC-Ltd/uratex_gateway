@@ -37,15 +37,12 @@ try:
         date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         now = datetime.now()
 
-        # Calculate the next 5-minute boundary
-        next_run = now.replace(
-            second=0,
-            microsecond=0
-        ) + timedelta(
-            minutes=5 - (now.minute % 5)
+        next_run = (
+            now.replace(second=0, microsecond=0)
+            + timedelta(minutes=5 - (now.minute % 5))
         )
 
-        sleep_seconds = (next_run - now).total_seconds()
+        sleep_seconds = max(0, (next_run - datetime.now()).total_seconds())
 
         # Retry cloud connection if it was never established or dropped
         if not cloud_conn:
