@@ -64,8 +64,6 @@ try:
             #         'slave_address': 5,
             #         'register_address': [200, 202, 204, 6, 8, 10, 52, 56, 342],
             #         'parameter': ['voltage_ab', 'voltage_bc', 'voltage_ca', 'current_a', 'current_b', 'current_c', 'real_power', 'apparent_power', 'energy']}]
-            print("Meter Result")
-            print(meter_results)
 
             for meter_result in meter_results:
                 model_id = meter_result['sensor_model_id']
@@ -82,7 +80,7 @@ try:
                     try:
                         for register_address in register_addresses:
 
-                            # if model_id == 1:
+                            # if model_id > 1:
                             #     # Schneider
                             #     response = client.read_holding_registers(
                             #         address=int(register_address),
@@ -93,24 +91,22 @@ try:
 
                             # Eastron
                             response = client.read_input_registers(
-                                address=int(register_address),
+                                address=int(222),
                                 count=2,
-                                device_id=slave_address
+                                device_id=int(2)
                             )
 
-                            print("Register Address")
-                            print(register_address)
-                            print("Slave Address")
-                            print(slave_address)
-
                             if not response.isError():
+
                                 sensor_value = float("%.2f" % client.convert_from_registers(
                                     response.registers, data_type=client.DATATYPE.FLOAT32
                                 ))
+
                                 meter_value_temp = meter_value_temp + \
                                     (sensor_value,)
 
                                 print("Sensor Value:")
+
                                 print(sensor_value)
                                 sys.exit(1)
 
