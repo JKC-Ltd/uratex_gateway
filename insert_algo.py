@@ -22,8 +22,6 @@ def insert_sensor_logs(meter_id, slave_address, column_parameter="", values="",
         placeholders = ", ".join(["%s"] * len(values))
         sql = f"INSERT INTO sensor_logs ({column_parameter}) VALUES ({placeholders})"
 
-        print(sql)
-
         if cloud_conn:
             db_connections.ensure_connected(cloud_conn)
             cloud_cursor = cloud_conn.cursor()
@@ -39,6 +37,7 @@ def insert_sensor_logs(meter_id, slave_address, column_parameter="", values="",
             db_connections.ensure_connected(local_conn)
             local_cursor = local_conn.cursor()
             materialized_sql = sql % values
+            print(materialized_sql)
             offline_sql = "INSERT INTO sensor_offlines (query, gateway_id) VALUES (%s, %s)"
             local_cursor.execute(offline_sql, (materialized_sql, gateway_id))
             local_conn.commit()
