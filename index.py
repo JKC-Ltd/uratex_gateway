@@ -137,6 +137,10 @@ try:
 
                     # insert_sensor_logs returns True if cloud insert succeeded, False if it fell back to offline
 
+                    print("Meter ID:", meter_id)
+                    print(column_parameter)
+                    print(meter_value)
+
                     cloud_ok = insert_algo.insert_sensor_logs(
                         meter_id, slave_address, column_parameter, meter_value,
                         cloud_conn=cloud_conn, local_conn=local_conn
