@@ -132,8 +132,7 @@ try:
                         continue
 
                     meter_value_temp = tuple(map(float, meter_value_temp))
-                    meter_value_temp = meter_value_temp + \
-                        (date_now.strftime('%Y-%m-%d %H:%M:%S'),)
+                    meter_value_temp = meter_value_temp + (date_now,)
                     meter_value = (gateway_id, meter_id) + meter_value_temp
 
                     print("Meter ID:", meter_id)
