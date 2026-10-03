@@ -36,8 +36,13 @@ def insert_sensor_logs(meter_id, slave_address, column_parameter="", values="",
             # Cloud unavailable — queue for deferred sync
             db_connections.ensure_connected(local_conn)
             local_cursor = local_conn.cursor()
-            materialized_sql = sql % values
+            # materialized_sql = sql % values
+            materialized_sql = sql % tuple(
+                f"'{v}'" if isinstance(v, str) else v
+                for v in values
+            )
             print(materialized_sql)
+
             offline_sql = "INSERT INTO sensor_offlines (query, gateway_id) VALUES (%s, %s)"
             local_cursor.execute(offline_sql, (materialized_sql, gateway_id))
             local_conn.commit()
