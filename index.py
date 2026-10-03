@@ -132,10 +132,14 @@ try:
                         continue
 
                     meter_value_temp = tuple(map(float, meter_value_temp))
-                    meter_value_temp = meter_value_temp + (date_now,)
+                    meter_value_temp = meter_value_temp + ('date_now',)
                     meter_value = (gateway_id, meter_id) + meter_value_temp
 
                     # insert_sensor_logs returns True if cloud insert succeeded, False if it fell back to offline
+
+                    print("Meter ID:", meter_id)
+                    print(column_parameter)
+                    print(meter_value)
 
                     cloud_ok = insert_algo.insert_sensor_logs(
                         meter_id, slave_address, column_parameter, meter_value,
