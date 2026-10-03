@@ -43,7 +43,7 @@ try:
             # Wait until the next 5-minute clock boundary (:00, :05, :10, ...)
             # Computed fresh each cycle so processing time never causes drift.
 
-            date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             # Retry cloud connection if it was never established or dropped
             if not cloud_conn:
